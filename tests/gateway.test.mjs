@@ -91,3 +91,18 @@ test('trusted settlement requires HMAC and exact account and amount',async()=>{
     const returned=await api(`/api/v1/payments/${payId}`);assert.equal(returned.data.verification,'TRUSTED_SETTLEMENT_CALLBACK');
   }finally{await s.close();}
 });
+
+
+test('payment checkout stylesheet is served and hides inactive screens', async () => {
+  const s = await start();
+  try {
+    const css = await fetch(`${s.base}/public/pay.css`);
+    assert.equal(css.status, 200);
+    assert.match(css.headers.get('content-type') || '', /text\\/css/);
+    const source = await css.text();
+    assert.match(source, /\\.hidden\\s*\\{display:none!important\\}/);
+    assert.match(source, /\\.app-grid\\s*\\{display:grid/);
+    const page = await fetch(`${s.base}/pay/00000000-0000-0000-0000-000000000000`);
+    assert.equal(page.status, 404);
+  } finally { await s.close(); }
+});
