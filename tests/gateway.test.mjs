@@ -92,17 +92,16 @@ test('trusted settlement requires HMAC and exact account and amount',async()=>{
   }finally{await s.close();}
 });
 
-
 test('payment checkout stylesheet is served and hides inactive screens', async () => {
   const s = await start();
   try {
-    const css = await fetch(`${s.base}/public/pay.css`);
+    const css = await fetch(s.base + '/public/pay.css');
     assert.equal(css.status, 200);
-    assert.match(css.headers.get('content-type') || '', /text\\/css/);
+    assert.ok((css.headers.get('content-type') || '').includes('text/css'));
     const source = await css.text();
-    assert.match(source, /\\.hidden\\s*\\{display:none!important\\}/);
-    assert.match(source, /\\.app-grid\\s*\\{display:grid/);
-    const page = await fetch(`${s.base}/pay/00000000-0000-0000-0000-000000000000`);
+    assert.ok(source.includes('.hidden{display:none!important}'));
+    assert.ok(source.includes('.app-grid{display:grid'));
+    const page = await fetch(s.base + '/pay/00000000-0000-0000-0000-000000000000');
     assert.equal(page.status, 404);
   } finally { await s.close(); }
 });
