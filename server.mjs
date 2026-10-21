@@ -7,7 +7,7 @@ import { openDb, allAccounts, getAccount, getBrand, getLink, getPayment, withWri
 import { equalSecret, sign, newSession, validSession, parseRupees, rupees, isValidVpa, upiUri, clean } from './lib/security.mjs';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
-const ASSETS = {'/admin':'admin.html','/':'admin.html','/public/admin.js':'admin.js','/public/admin.css':'admin.css','/public/pay.js':'pay.js','/public/pay.html':'pay.html'};
+const ASSETS = {'/admin':'admin.html','/':'admin.html','/public/admin.js':'admin.js','/public/admin.css':'admin.css','/public/pay.css':'pay.css','/public/pay.js':'pay.js','/public/pay.html':'pay.html'};
 const MIME = {'.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.html':'text/html; charset=utf-8'};
 const attempts = new Map();
 const badLogins = new Map();
