@@ -25,8 +25,16 @@ test('validate amounts and UPI URIs',()=>{
   assert.equal(parseRupees('1'),100);
   assert.throws(()=>parseRupees('0.20'));
   assert.throws(()=>parseRupees('100.234'));
-  const uri=upiUri({vpa:'test@bank',payee_name:'Test Store'},10050,'ABC1','Order');
+  const uri=upiUri({vpa:'test@bank',payee_name:'Test Store'},10050,'Order');
   assert.match(uri,/am=100.50/);assert.match(uri,/pa=test%40bank/);
+  const query=new URL(uri).searchParams;
+  assert.equal(query.get('pn'),'Test Store');
+  assert.equal(query.get('cu'),'INR');
+  assert.equal(query.get('tn'),'Order');
+  assert.equal(query.has('tr'),false,'Personal account UPI must not invent merchant references');
+  const staticUri=new URL(upiUri({vpa:'test@bank',payee_name:'Test Store'}));
+  assert.equal(staticUri.searchParams.has('tr'),false);
+  assert.equal(staticUri.searchParams.has('am'),false);
 });
 test('full merchant and public checkout workflow',async()=>{
   const s=await start();
@@ -52,6 +60,7 @@ test('full merchant and public checkout workflow',async()=>{
     assert.equal(r.status,201);const payId=r.data.id;
     r=await anon(`/api/public/attempts/${payId}`);
     assert.equal(r.status,200); assert.match(r.data.upiUri,/pa=one%40upi/); assert.match(r.data.upiUri,/am=259.50/);
+    assert.equal(new URL(r.data.upiUri).searchParams.has('tr'),false);
     r=await anon(`/api/public/attempts/${payId}/report`,'POST',{});
     assert.equal(r.data.status,'CUSTOMER_REPORTED');
     r=await anon(`/api/public/attempts/${payId}`);assert.notEqual(r.data.status,'PAID');
