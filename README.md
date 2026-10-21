@@ -15,6 +15,12 @@ A standalone, single-domain payment-link dashboard **based on the design and UPI
 - **Payment reconciliation**: manual bank-statement confirmation with real UTR, or a signed settlement callback from a trusted bank/PSP integration.
 - **Data persistence**: SQLite WAL under `/app/data`, with Docker/EasyPanel deployment and no paid external database service.
 
+## Personal UPI account compatibility
+
+This version generates standard **personal-account UPI transfer links** using `pa` (payee UPI ID), `pn` (payee name), optional `am` (amount), `cu=INR`, and optional `tn` (description). It **does not fabricate a merchant transaction reference (`tr`)** or assert merchant verification. Unique internal payment IDs are retained for history, but are not proof of payment.
+
+UPI apps—including Paytm—can reject or warn about third-party initiated payments under their own account risk rules. Simplifying the transfer link **does not guarantee acceptance or bypass these rules**. If a UPI app warns, use its official QR-scanning or mobile-number payment options, or request an approved merchant payment method from your bank/PSP. Do not retry repeatedly to circumvent a block. Compare bank statements and UTRs before marking a payment paid.
+
 ## IMPORTANT: payment verification and banking
 
 This is **NOT an accredited payment aggregator or a bank verification service**. The QR/app handoff moves the payer to their bank/UPI app; it does not prove money was received. A customer clicking “I've paid”, or an app opening, **does not** set status to `PAID`. The admin should independently match the receiving bank account, exact amount, and bank reference/UTR before confirming, and that is recorded as `MANUAL_BANK_CHECK`.
