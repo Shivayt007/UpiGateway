@@ -190,7 +190,7 @@ export function createGateway({db=openDb(process.env.DB_PATH || path.join(root,'
         const payment=getPayment(db,p.split('/').at(-1));
         if(!payment) {fail(res,404,'Payment not found');return;}
         const link=getLink(db,payment.link_id);
-        const uri=upiUri({vpa:payment.vpa,payee_name:payment.payee_name},payment.amount_paise,payment.id.replaceAll('-','').slice(0,24),link.title);
+        const uri=upiUri({vpa:payment.vpa,payee_name:payment.payee_name},payment.amount_paise,link.title);
         json(res,200,{...publicPayment(payment),payeeName:payment.payee_name,upiId:payment.vpa,upiUri:uri,qrUrl:`${base}/qr/payments/${payment.id}.svg`});return;
       }
       if(m==='POST'&&/^\/api\/public\/attempts\/[a-f0-9-]{36}\/report$/.test(p)) {
@@ -212,10 +212,10 @@ export function createGateway({db=openDb(process.env.DB_PATH || path.join(root,'
           if(!l || l.type!=='FIXED' || !l.enabled || (l.expires_at&&Date.now()>Date.parse(l.expires_at))) {fail(res,404,'Fixed-amount QR unavailable');return;}
           const a=verifyAccount(db,l.account_id);
           // Merchant-generated QR has no individual payment attempt. Reconcile manually.
-          uri=upiUri(a,l.amount_paise,id.replaceAll('-','').slice(0,24),l.title);
+          uri=upiUri(a,l.amount_paise,l.title);
         } else {
           const pay=getPayment(db,id);if(!pay) {fail(res,404,'Payment unavailable');return;}
-          uri=upiUri({vpa:pay.vpa,payee_name:pay.payee_name},pay.amount_paise,id.replaceAll('-','').slice(0,24),getLink(db,pay.link_id).title);
+          uri=upiUri({vpa:pay.vpa,payee_name:pay.payee_name},pay.amount_paise,getLink(db,pay.link_id).title);
         }
         const {default:Qr}=await import('qrcode');
         const svg=await Qr.toString(uri,{type:'svg',width:320,margin:2,errorCorrectionLevel:'M'});
